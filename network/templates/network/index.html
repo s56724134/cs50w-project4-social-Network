@@ -1,0 +1,113 @@
+{% extends "network/layout.html" %}
+
+{% block body %}
+	{% csrf_token %}
+	<script>
+		const csrftoken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+		function submitHandler(id){
+			const content = document.getElementById(`content_${id}`);
+			const textareaValue = document.getElementById(`textarea_${id}`).value;
+			fetch(`/edit/${id}`,{
+				method : "POST",
+				headers: {"Content-type": "application/json", "X-CSRFToken":csrftoken},
+				body: JSON.stringify({
+					content: textareaValue
+				})
+			})
+			.then(response => response.json())
+			.then(result =>{
+				console.log(result)
+				content.innerHTML = result.data;
+				<!-- 將modal隱藏 -->
+				let myModalEl = document.getElementById(`modal_edit_post_${id}`)
+				let modal = bootstrap.Modal.getInstance(myModalEl)
+				modal.hide()
+								
+			})							
+		}
+		<!-- like logic -->
+		function likeHandler(id){
+			<!-- 找出特定的post -->
+			const post = document.getElementById(`likePost_${id}`)
+			const likePost = document.getElementById(`likePost_${id}`).innerHTML;
+			console.log(likePost);
+			fetch(`post-like/${id}`,{
+				method: "PUT",
+				headers: {"Content-type": "application/json", "X-CSRFToken":csrftoken},
+				body: JSON.stringify({
+					like: likePost
+				})
+			})
+			.then(response => response.json())
+			.then(result =>{
+				console.log(result)
+				<!-- 更改total_like值 -->
+				post.innerHTML = result.data;
+			})
+		}
+	</script>
+	
+	{% if user.is_authenticated %}
+	<div class="newpost">
+		<form action="{% url 'newPost' %}" method="POST" style="flex:1">
+			{% csrf_token %}
+			<div class="form-group">
+				<label for="post">New Post</label>
+				<input type="text" name="content" class="form-control" id="post">
+				<br/>
+				<button type="submit" class="btn btn-primary">Post</button>
+			</div>
+		</form>
+	</div>
+	{% endif %}
+	<h6 style="font-size: 20px;">All Posts</h6>
+	{% for post in post_of_the_page %}
+	<div class="container-post all-post">
+		<h5>
+			<a href="{% url 'profile' post.author.id %}">{{post.author}}</a>
+		</h5>
+		<h6 id="content_{{post.id}}">{{post.content}}</h6>
+		<p>{{post.date}}</p>
+		<!-- post like -->
+		<button>
+			<i class="fa-solid fa-heart" style="color: #f20707;" id="likePost_{{post.id}}" onclick="likeHandler({{post.id}})">{{post.total_likes}}</i>
+		</button>		
+		{% if user.is_authenticated %}
+			{% if user == post.author %}
+			<button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#modal_edit_post_{{post.id}}">
+			  Edit
+			</button>
+
+			<!-- Modal -->
+			<div class="modal fade" tabindex="-1" id="modal_edit_post_{{post.id}}" aria-labelledby="#modal_edit_post_{{post.id}}" aria-hidden="true" >
+			  <div class="modal-dialog">
+				<div class="modal-content">
+				  <div class="modal-header">
+					<h5 class="modal-title">Edit Post</h5>
+					<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+				  </div>
+				  <div class="modal-body">
+					<textarea name="content" id="textarea_{{post.id}}" class="form-control" rows="10">{{post.content}}</textarea>
+				  </div>
+				  <div class="modal-footer">
+					<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+					<button type="button" class="btn btn-primary" onclick="submitHandler({{post.id}})">Save changes</button>
+				  </div>
+				</div>
+			  </div>
+			</div>
+			{% endif %}
+		{% endif %}	
+	</div>
+	{% endfor %}	
+	<nav aria-label="Page navigation example">
+	  <ul class="pagination d-flex justify-content-center">
+	    {% if post_of_the_page.has_previous %}
+		<li class="page-item"><a class="page-link" href="?page={{ post_of_the_page.previous_page_number }}">Previous</a></li>
+		{% endif %}
+		{% if post_of_the_page.has_next %}
+		<li class="page-item"><a class="page-link" href="?page={{ post_of_the_page.next_page_number }}">Next</a></li>
+		{% endif %}
+	  </ul>
+	</nav>
+{% endblock %}

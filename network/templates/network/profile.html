@@ -1,0 +1,58 @@
+{% extends "network/layout.html" %}
+
+{% block body %}
+<!-- 使用者追蹤人數以及追蹤者 -->
+<div class="profile-container">
+	<img src="https://fakeimg.pl/300/"  alt="profile image">
+	<div class="profile-follower">
+		<h3>{{followers.count}}</h3>
+		<span>Follower</span>
+	</div>
+	<div class="profile-follow">
+		<h3>{{following.count}}</h3>
+		<span>Follow</span>
+	</div>
+</div>
+{% if user.is_authenticated %}
+	{% if user != userProfile %}
+		{% if isFollowing %}
+			<form action="{% url 'unfollow' %}" method="POST">
+				{% csrf_token %}
+				<div class="follow-button">
+					<input type="hidden" name="userfollow" value="{{userProfile}}"/>
+					<input type="submit" class="btn btn-danger" value="Unfollow"/>
+				</div>
+			</form>
+		{% else %}
+			<form action="{% url 'follow' %}" method="POST">
+				{% csrf_token %}
+				<div class="follow-button">
+					<input type="hidden" name="userfollow" value="{{userProfile}}"/>
+					<input type="submit" class="btn btn-success" value="Follow"/>
+				</div>
+			</form>
+		{% endif %}
+	{% endif %}
+{% endif %}
+<!-- 使用者po的貼文 -->
+<h6 style="font-size: 20px;">All Posts</h6>
+{% for post in post_of_the_page %}
+<div class="container-post all-post">
+	<h5>
+		<a href="{% url 'profile' post.author.id %}">{{post.author}}</a>
+	</h5>
+	<h6>{{post.content}}</h6>
+	<p>{{post.date}}</p>
+</div>
+{% endfor %}	
+<nav aria-label="Page navigation example">
+  <ul class="pagination d-flex justify-content-center">
+	{% if post_of_the_page.has_previous %}
+	<li class="page-item"><a class="page-link" href="?page={{ post_of_the_page.previous_page_number }}">Previous</a></li>
+	{% endif %}
+	{% if post_of_the_page.has_next %}
+	<li class="page-item"><a class="page-link" href="?page={{ post_of_the_page.next_page_number }}">Next</a></li>
+	{% endif %}
+  </ul>
+</nav>
+{% endblock %}

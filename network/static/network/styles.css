@@ -1,0 +1,64 @@
+/* index.html */
+
+body{
+	margin: 0px;
+}
+.newpost{
+	padding: 10px 300px 10px 100px;
+}
+
+.container-post{
+	
+	margin-bottom: 10px;
+	border:1px solid #757575;
+	padding: 10px 20px 10px;
+	
+}
+
+.all-post{
+	border-radius: 20px;
+}
+
+.all-post:hover{
+	background-color:rgba(201,189,173,0.3);
+	
+	
+}
+
+/* profile.html */
+
+.profile-container{
+	display: flex;
+	align-items: center;
+}
+
+.profile-container img{
+	width: 100px;
+	height: 100px;
+	border-radius: 50%;
+	margin: 20px 20px 20px 30px;
+}
+
+.profile-follower{
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	margin: 20px;
+}
+
+.profile-follow{
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	margin: 20px;
+}
+
+.follow-button{
+	display: flex;
+	padding-left: 5px;
+	margin-bottom: 20px;
+}
+
+.follow-button button:last-child{
+	margin-left: 5px;
+}
